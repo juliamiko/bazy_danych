@@ -1,0 +1,86 @@
+-- 1. Utwórz nową bazę danych nazywającą się firma.
+CREATE DATABASE firma;
+GO
+
+-- 2. Dodaj nowy schemat o nazwie rozliczenia.
+CREATE SCHEMA rozliczenia;
+GO
+
+ --2. Dodaj nowy schemat o nazwie rozliczenia.
+-- a) Tabela pracownicy
+CREATE TABLE rozliczenia.pracownicy (
+id_pracownika CHAR(3) NOT NULL PRIMARY KEY,
+imie VARCHAR(50) NOT NULL,
+nazwisko VARCHAR(50) NOT NULL,
+adres VARCHAR(150) NOT NULL,
+telefon VARCHAR(20)
+);
+
+ -- b) Tabela godziny
+CREATE TABLE rozliczenia.godziny(
+id_godziny CHAR(4) NOT NULL PRIMARY KEY,
+data DATE NOT NULL,
+liczba_godzin INTEGER NOT NULL,
+id_pracownika CHAR(3) NOT NULL
+);
+ 
+ -- c) Tabela pensje
+CREATE TABLE rozliczenia.pensje(
+id_pensji INTEGER NOT NULL PRIMARY KEY,
+stanowisko VARCHAR(50) NOT NULL,
+kwota DECIMAL(10,2) NOT NULL,
+id_premii CHAR(2)
+);
+ -- d) Tabela premie
+CREATE TABLE rozliczenia.premie(
+id_premii CHAR(2) NOT NULL PRIMARY KEY,
+rodzaj VARCHAR(50),
+kwota DECIMAL(10,2) NOT NULL
+);
+ 
+ 
+ALTER TABLE rozliczenia.godziny ADD FOREIGN KEY (id_pracownika) REFERENCES rozliczenia.pracownicy(id_pracownika);
+ 
+ALTER TABLE rozliczenia.pensje ADD FOREIGN KEY (id_premii) REFERENCES rozliczenia.premie(id_premii);
+ 
+ -- 4. Wypełnij każdą tabelę 10 rekordami
+INSERT INTO rozliczenia.pracownicy (id_pracownika, imie, nazwisko, adres, telefon) VALUES ('A01', 'Jan', 'Kowalski', 'ul. Powiśle 10, 30-962 Kraków', '888 777 999'),
+('A02', 'Jakub', 'Wiśniewski', 'al. Mickiewicza 23, 31-120 Kraków', '108 553 232'), ('A03', 'Sylwia', 'Dąbrowska', 'pl. Szczepański 8, 31-011 Kraków', '999 776 555'),
+('A04', 'Bartosz', 'Lewandowski', 'pl. Na Groblach 12, 30-001 Kraków', '333 222 999'), ('A05', 'Aneta', 'Nowak', 'ul. św. Tomasza 15, 31-014 Kraków', '654 354 568'),
+('A06', 'Szymon', 'Kowalczyk', 'ul. Grodzka 15, 31-006 Kraków', '934 665 742'), ('A07', 'Franciszek', 'Wojciechowski', 'al. Juliusza Słowackiego 33, 31-011 Kraków', '320 312 498'),
+('A08', 'Piotr', 'Zieliński', 'ul. Floriańska 25, 31-019 Kraków', '865 234 987'), ('A09', 'Maciej', 'Kwiatkowski', 'al. Jana Pawła II 12, 31-864 Kraków', '438 621 964'),
+('A10', 'Magdalena', 'Wójcik', 'ul. Szewska 7, 31-009 Kraków', '875 765 425');
+ 
+INSERT INTO rozliczenia.godziny (id_godziny, data, liczba_godzin , id_pracownika) VALUES ('B01', '2020-05-10', 5296, 'A01'),
+('B02', '2022-10-06', 2347, 'A02'), ('B03', '2024-01-20', 202, 'A03'), ('B04', '2022-03-07', 1999, 'A04'),
+('B05', '2020-10-17', 4987, 'A05'), ('B06', '2023-08-01', 1436, 'A06'), ('B07', '2023-11-15', 1263, 'A07'),
+('B08', '2021-10-05', 3420, 'A08'), ('B09', '2020-11-22', 4206, 'A09'), ('B10', '2023-08-24', 1397, 'A10');
+ 
+INSERT INTO rozliczenia.pensje (id_pensji, stanowisko, kwota, id_premii) VALUES ('C01', 'Prezes', 40000.00, 'D01'),
+('C02', 'Analityk', 7500.00, 'D02'), ('C03', 'Stażysta', 2000.00, NULL), ('C04', 'Specjalista', 7000.00, 'D03'),
+('C05', 'Dyrektor', 25000.00, 'D05'), ('C06', 'Asystent', 5500.00, 'D03'), ('C07', 'Asystent', 5500.00, NULL),
+('C08', 'Kierownik działu', 12000.00, 'D02'), ('C09', 'Dyrektor generalny', 30000.00,'D04'), ('C10', 'Kierownik zespołu', 9000.00, 'D02');
+ 
+INSERT INTO rozliczenia.premie (id_premii, rodzaj, kwota) VALUES ('D01', 'Za zysk firmy', 20000.00),
+('D02', 'Za wyniki', 2000.00), ('D03', 'Za efektywność', 1000.00),('D04', 'Za zysk firmy', 9000.00),('D05', 'Za wyniki', 7000.00);
+ 
+ -- 5. Za pomocą zapytania SQL wyświetl nazwiska pracowników i ich adresy.
+SELECT nazwisko, adres FROM rozliczenia.pracownicy;
+ 
+ -- 6. Napisz zapytanie, które przekonwertuje datę w tabeli godziny tak, aby wyświetlana była informacja jaki to dzień tygodnia i jaki miesiąc
+SELECT id_godziny, data, liczba_godzin , id_pracownika, DATEPART(dw, data) AS dzien_tygodnia, DATEPART(mm, data) FROM rozliczenia.godziny;
+ 
+ -- 7. W tabeli pensje zmień nazwę atrybutu kwota na kwota_brutto oraz dodaj nowy o nazwie kwota_netto. Oblicz kwotę netto i zaktualizuj wartości w tabeli.
+
+EXECUTE sp_rename 'rozliczenia.pensje.kwota', 'kwota_brutto', 'COLUMN';
+ 
+ 
+ALTER TABLE rozliczenia.pensje ADD kwota_netto DECIMAL(10,2);
+ 
+ -- Aktualizacja kwoty netto
+UPDATE rozliczenia.pensje
+SET kwota_netto = kwota_brutto * 0.8);
+ 
+ 
+SELECT kwota_netto, kwota_brutto from rozliczenia.pensje;
+

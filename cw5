@@ -1,0 +1,169 @@
+-- 1. Utwórz nową bazę danych nazywającą się firma.
+CREATE DATABASE firma2;
+GO
+
+  -- 2. Dodaj nowy schemat o nazwie rozliczenia.
+CREATE SCHEMA ksiegowosc;
+GO
+-- 3. Tabele
+CREATE TABLE  ksiegowosc.pracownicy (
+    id_pracownika INT NOT NULL PRIMARY KEY,
+    imie VARCHAR(50) NOT NULL,
+    nazwisko VARCHAR(50) NOT NULL,
+    adres VARCHAR(100) NOT NULL,
+    telefon VARCHAR(15) NOT NULL,
+) --COMMENT = 'Tabela przechowująca informacje o pracownikach';
+
+CREATE TABLE ksiegowosc.godziny (
+    id_godziny INT NOT NULL PRIMARY KEY,
+    data DATE NOT NULL,
+    liczba_godzin INT NOT NULL,
+    id_pracownika INT NOT NULL,
+    FOREIGN KEY (id_pracownika) REFERENCES ksiegowosc.pracownicy(id_pracownika)
+)-- COMMENT = 'Tabela przechowująca informacje o godzinach pracy pracowników';
+
+CREATE TABLE ksiegowosc.pensja (
+    id_pensji INT NOT NULL PRIMARY KEY,
+    stanowisko VARCHAR(50) NOT NULL,
+    kwota DECIMAL(10, 2)NOT NULL,
+) --COMMENT = 'Tabela przechowująca informacje o pensjach pracowników';
+
+CREATE TABLE  ksiegowosc.premia (
+    id_premii INT NOT NULL PRIMARY KEY,
+    rodzaj VARCHAR(50)NOT NULL,
+    kwota DECIMAL(10, 2)NOT NULL,
+) --COMMENT = 'Tabela przechowująca informacje o premiach pracowników';
+
+CREATE TABLE ksiegowosc.wynagrodzenie(
+    id_wynagrodzenia INT NOT NULL PRIMARY KEY,
+    data DATE NOT NULL,
+    id_pracownika INT NOT NULL,
+    id_godziny INT NOT NULL,
+    id_pensji INT NOT NULL,
+    id_premii INT NOT NULL,
+    FOREIGN KEY (id_pracownika) REFERENCES ksiegowosc.pracownicy(id_pracownika),
+    FOREIGN KEY (id_godziny) REFERENCES ksiegowosc.godziny(id_godziny),
+    FOREIGN KEY (id_pensji) REFERENCES ksiegowosc.pensja(id_pensji),
+    FOREIGN KEY (id_premii) REFERENCES ksiegowosc.premia(id_premii)
+) --COMMENT = 'Tabela przechowująca informacje o wynagrodzeniach pracowników';
+
+-- Wypełnienie tabeli pracownicy
+INSERT INTO ksiegowosc.pracownicy (id_pracownika, imie, nazwisko, adres, telefon) VALUES
+(1, 'Jan', 'Kowalski', 'ul. Czarnowiejska 2', '123456789'),
+(2, 'Anna', 'Nowak', 'al. Adama Mickiewicza 5', '987654321'),
+(3, 'Marcin', 'Lis', 'ul. Grzegórzecka 10', '456123789'),
+(4, 'Katarzyna', 'Mazurek', 'ul. Rejtana 15', '789456123'),
+(5, 'Piotr', 'Wójcik', 'ul. Mogilska 20', '321654987'),
+(6, 'Aleksandra', 'Kowalczyk', 'ul. Podgórska 25', '654789321'),
+(7, 'Michał', 'Zając', 'ul. św. Tomasza 30', '987123654'),
+(8, 'Karolina', 'Szymańska', 'ul. Basztowa 35', '159753468'),
+(9, 'Grzegorz', 'Wilk', 'ul. Krakowska 40', '369258147'),
+(10, 'Ewa', 'Jasińska', 'ul. Długa 45', '741852963');
+
+-- Wypełnienie tabeli godziny
+INSERT INTO ksiegowosc.godziny (id_godziny, data, liczba_godzin, id_pracownika) VALUES
+(1, '2024-01-01', 160, 1),
+(2, '2024-01-01', 150, 2),
+(3, '2024-01-02', 170, 3),
+(4, '2024-01-02', 180, 4),
+(5, '2024-01-03', 175, 5),
+(6, '2024-01-03', 165, 6),
+(7, '2024-01-04', 160, 7),
+(8, '2024-01-04', 155, 8),
+(9, '2024-01-05', 170, 9),
+(10, '2024-01-05', 180, 10);
+
+-- Wypełnienie tabeli pensja
+INSERT INTO ksiegowosc.pensja (id_pensji, stanowisko, kwota) VALUES
+(1, 'Księgowy', 3500),
+(2, 'Asystent', 2800),
+(3, 'Specjalista ds. Finansowych', 7000),
+(4, 'Pracownik biurowy', 6000),
+(5, 'Kierownik', 15500),
+(6, 'Analityk finansowy', 3800),
+(7, 'Technik', 7200),
+(8, 'Dyrektor', 24200),
+(9, 'Doradca podatkowy', 3700),
+(10, 'Sekretarka', 2900);
+
+-- Wypełnienie tabeli premia
+INSERT INTO ksiegowosc.premia (id_premii, rodzaj, kwota) VALUES
+(1, 'Za wyniki', 500),
+(2, 'Premia roczna', 1000),
+(3, 'Premia kwartalna', 700),
+(4, 'Za nadgodziny', 300),
+(5, 'Premia świąteczna', 800),
+(6, 'Za staż pracy', 400),
+(7, 'Premia specjalna', 1200),
+(8, 'Premia motywacyjna', 900),
+(9, 'Premia za efektywność', 600),
+(10, 'Premia za innowacje', 1100);
+
+-- Wypełnienie tabeli wynagrodzenie
+INSERT INTO ksiegowosc.wynagrodzenie (id_wynagrodzenia, data, id_pracownika, id_godziny, id_pensji, id_premii) VALUES
+(1, '2024-01-01', 1, 1, 1, 2),
+(2, '2024-01-01', 2, 2, 2, 3),
+(3, '2024-01-02', 3, 3, 3, 4),
+(4, '2024-01-02', 4, 4, 4, 5),
+(5, '2024-01-03', 5, 5, 5, 6),
+(6, '2024-01-03', 6, 6, 6, 7),
+(7, '2024-01-04', 7, 7, 7, 8),
+(8, '2024-01-04', 8, 8, 8, 9),
+(9, '2024-01-05', 9, 9, 9, 10),
+(10, '2024-01-05', 10, 10, 10, 1);
+
+--a
+SELECT id_pracownika, nazwisko FROM ksiegowosc.pracownicy;
+
+--b
+SELECT pracownicy.id_pracownika
+FROM ksiegowosc.pracownicy
+JOIN pensja ON pracownicy.id_pracownika = pensja.id_pensji
+WHERE pensja.kwota > 1000;
+
+--c
+SELECT pracownicy.id_pracownika
+FROM ksiegowosc.pracownicy
+JOIN ksiegowosc.pensja ON pracownicy.id_pracownika = pensja.id_pensji
+LEFT JOIN ksiegowosc.premia ON pracownicy.id_pracownika = premia.id_premii
+WHERE premia.id_premii IS NULL AND pensja.kwota > 2000;
+
+--d
+SELECT * FROM ksiegowosc.pracownicy WHERE imie LIKE 'J%';
+
+--e
+SELECT * FROM ksiegowosc.pracownicy WHERE nazwisko LIKE '%n%' AND imie LIKE '%a';
+
+--f
+SELECT pracownicy.imie, pracownicy.nazwisko, SUM(godziny.liczba_godzin - 160) AS nadgodziny
+FROM ksiegowosc.pracownicy
+JOIN ksiegowosc.godziny ON pracownicy.id_pracownika = godziny.id_pracownika
+GROUP BY pracownicy.id_pracownika, pracownicy.imie, pracownicy.nazwisko;
+
+--g
+SELECT pracownicy.imie, pracownicy.nazwisko
+FROM ksiegowosc.pracownicy
+JOIN ksiegowosc.pensja ON pracownicy.id_pracownika = pensja.id_pensji
+WHERE pensja.kwota BETWEEN 1500 AND 3000;
+
+--h
+SELECT pracownicy.imie, pracownicy.nazwisko
+FROM ksiegowosc.pracownicy
+JOIN ksiegowosc.godziny ON pracownicy.id_pracownika = godziny.id_pracownika
+LEFT JOIN ksiegowosc.premia ON pracownicy.id_pracownika = premia.id_premii
+WHERE godziny.liczba_godzin > 160 AND premia.id_premii IS NULL;
+
+--i 
+SELECT pracownicy.imie, pracownicy.nazwisko, pensja.kwota AS pensja
+FROM ksiegowosc.pracownicy
+JOIN ksiegowosc.pensja ON pracownicy.id_pracownika = pensja.id_pensji
+ORDER BY pensja.kwota;
+
+--j
+SELECT pracownicy.imie, pracownicy.nazwisko, pensja.kwota AS pensja, premia.kwota AS premia
+FROM ksiegowosc.pracownicy
+JOIN ksiegowosc.pensja ON pracownicy.id_pracownika = pensja.id_pensji
+LEFT JOIN ksiegowosc.premia ON pracownicy.id_pracownika = premia.id_premii
+ORDER BY pensja.kwota DESC, premia.kwota DESC;
+
+

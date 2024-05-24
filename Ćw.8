@@ -1,0 +1,95 @@
+--1 
+--USE AdventureWorks2019;  -- Upewnij się, że korzystasz z odpowiedniej wersji bazy danych AdventureWorks
+
+---- Tworzenie CTE, które zbierze informacje o pracownikach i ich stawkach
+--WITH EmployeeInfo AS (
+--    SELECT 
+--        e.BusinessEntityID,
+--        p.FirstName,
+--        p.LastName,
+--        e.JobTitle,
+--        e.Gender,
+--        e.HireDate,
+--        ep.Rate,
+--        ep.PayFrequency
+--    FROM 
+--        HumanResources.Employee AS e
+--    JOIN 
+--        Person.Person AS p ON e.BusinessEntityID = p.BusinessEntityID
+--    JOIN 
+--        HumanResources.EmployeePayHistory AS ep ON e.BusinessEntityID = ep.BusinessEntityID
+--)
+--SELECT * INTO TempEmployeeInfo FROM EmployeeInfo;
+
+SELECT * FROM TempEmployeeInfo;
+
+--2 
+USE AdventureWorks2019;  -- Upewnij się, że korzystasz z odpowiedniej wersji bazy danych AdventureWorks
+
+-- Usunięcie tabeli tymczasowej, jeśli już istnieje
+IF OBJECT_ID('tempdb..#TempSalesInfo') IS NOT NULL
+    DROP TABLE #TempSalesInfo;
+
+-- Tworzenie CTE, które zbierze informacje o sprzedaży według firmy i kontaktu
+WITH SalesCTE AS (
+    SELECT 
+        s.Name AS StoreName,
+        p.FirstName,
+        p.LastName,
+        SUM(sod.LineTotal) AS Revenue
+    FROM 
+        Sales.SalesOrderHeader AS soh
+    INNER JOIN 
+        Sales.SalesOrderDetail AS sod ON soh.SalesOrderID = sod.SalesOrderID
+    LEFT JOIN 
+        Sales.Customer AS c ON soh.CustomerID = c.CustomerID
+    LEFT JOIN 
+        Person.Person AS p ON c.PersonID = p.BusinessEntityID
+    LEFT JOIN 
+        Sales.Store AS s ON c.StoreID = s.BusinessEntityID
+    WHERE 
+        s.Name IS NOT NULL AND p.FirstName IS NOT NULL AND p.LastName IS NOT NULL
+    GROUP BY 
+        s.Name, p.FirstName, p.LastName
+)
+
+-- Tworzenie tabeli tymczasowej i zapisanie do niej danych z CTE
+SELECT 
+    CONCAT(StoreName, ' (', FirstName, ' ', LastName, ')') AS CompanyContact,
+    Revenue
+INTO 
+    #TempSalesInfo
+FROM 
+    SalesCTE;
+
+-- Wyświetlenie zawartości tabeli tymczasowej
+SELECT * FROM #TempSalesInfo;
+
+--3
+USE AdventureWorksLT2019;  -- Upewnij się, że korzystasz z odpowiedniej wersji bazy danych AdventureWorksLT
+
+-- Tworzenie CTE, które zbierze informacje o sprzedaży według kategorii produktów
+WITH SalesCTE AS (
+    SELECT 
+        pc.Name AS CategoryName,
+        SUM(sod.LineTotal) AS SalesValue
+    FROM 
+        SalesLT.SalesOrderDetail AS sod
+    INNER JOIN 
+        SalesLT.SalesOrderHeader AS soh ON sod.SalesOrderID = soh.SalesOrderID
+    INNER JOIN 
+        SalesLT.Product AS p ON sod.ProductID = p.ProductID
+    INNER JOIN 
+        SalesLT.ProductCategory AS pc ON p.ProductCategoryID = pc.ProductCategoryID
+    GROUP BY 
+        pc.Name
+)
+
+-- Wyświetlenie wyników z CTE
+SELECT 
+    CategoryName,
+    SalesValue
+FROM 
+    SalesCTE
+ORDER BY 
+    SalesValue DESC;
